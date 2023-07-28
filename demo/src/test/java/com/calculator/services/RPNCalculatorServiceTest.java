@@ -34,45 +34,51 @@ public class RPNCalculatorServiceTest {
     @Test
     public void testEvaluateSimpleExpression() {
         String expression = "5.0 + 3";
-        double result = RPNCalculatorService.calculate(expression, variableMap);
+        double result = RPNCalculatorService.calculate(expression);
         Assertions.assertEquals(8, result);
     }
 
     @Test
     public void test_more_than_one_digits_number(){
-        String expression = "17+2*10-2";
-        double result = RPNCalculatorService.calculate(expression, variableMap);
-        Assertions.assertEquals(35,result);
+        String expression = "17+2*10--2";
+        double result = RPNCalculatorService.calculate(expression);
+        Assertions.assertEquals(39,result);
     }
 
     @Test
     public void test_multi_and_div(){
         String expression = "6+2*40/4";
-        double result = RPNCalculatorService.calculate(expression, variableMap);
+        double result = RPNCalculatorService.calculate(expression);
         Assertions.assertEquals(26,result);
     }
 
     @Test
     public void test_long_parenthesis(){
         String expression = "6+(5-3+10)*2";
-        double result = RPNCalculatorService.calculate(expression, variableMap);
+        double result = RPNCalculatorService.calculate(expression);
         Assertions.assertEquals(30,result);
     }
 
     @Test
     public void test_multi_parenthesis(){
         String expression = "5 + (3 * (-10))";
-        double result = RPNCalculatorService.calculate(expression, variableMap);
+        double result = RPNCalculatorService.calculate(expression);
         Assertions.assertEquals(-25,result);
     }
 
     @Test
     public void test_include_minus_val(){
-        String expression ="-6+(5-3+10)+(-2)";
-        double result = RPNCalculatorService.calculate(expression, variableMap);
+        String expression ="-6+(5-3+10)+-2";
+        double result = RPNCalculatorService.calculate(expression);
         Assertions.assertEquals(4,result);
     }
 
+    @Test
+    public void test_invalid_operator(){
+        assertThrows(IllegalArgumentException.class,() ->RPNCalculatorService.calculate("3 & 2"));
+        assertThrows(IllegalArgumentException.class, () -> RPNCalculatorService.calculate("-6+(5-3+10+-2"));
+        assertThrows(IllegalArgumentException.class, () -> RPNCalculatorService.calculate("-6+(5-3+(10+-2"));
+    }
 
 
 

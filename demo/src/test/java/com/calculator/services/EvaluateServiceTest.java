@@ -118,13 +118,6 @@ public class EvaluateServiceTest {
     }
 
 
-//    @Test
-//    public void testInvalidExpressionsWithOperatorsBetweenNumbersVariables() {
-//        assertThrows(IllegalArgumentException.class, () -> regexUtils.handleIncrementsDecrementsAndPrepareExpression("x++ * y-- ++z", variables));
-//        assertThrows(IllegalArgumentException.class, () -> regexUtils.handleIncrementsDecrementsAndPrepareExpression("(x +) * y", variables));
-//    }
-
-
 }
 
 

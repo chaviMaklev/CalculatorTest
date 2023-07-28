@@ -4,49 +4,61 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
+
 @Service
 public class OperatorUtils {
-    private final Map<String, BinaryOperator<Double>> OPERATORS;
-    private final Map<Character, Integer> PRECEDENCE_MAP;
-    private final Set<Character> VALID_OPERATORS;
-
-
+    private final Map<Character, OperatorInfo> OPERATORS;
 
     // Constructor
     public OperatorUtils() {
         OPERATORS = new HashMap<>();
-        OPERATORS.put("=", (a, b) -> b);
-        OPERATORS.put("+", Double::sum);
-        OPERATORS.put("-", (a, b) -> a - b);
-        OPERATORS.put("*", (a, b) -> a * b);
-        OPERATORS.put("/", (a, b) -> {
+        OPERATORS.put('+', new OperatorInfo(Double::sum, 1));
+        OPERATORS.put('-', new OperatorInfo((a, b) -> a - b, 1));
+        OPERATORS.put('*', new OperatorInfo((a, b) -> a * b, 2));
+        OPERATORS.put('/', new OperatorInfo((a, b) -> {
             if (b == 0) {
                 throw new ArithmeticException("Division by zero");
             }
             return a / b;
-        });
-
-        PRECEDENCE_MAP = new HashMap<>();
-        PRECEDENCE_MAP.put('+', 1);
-        PRECEDENCE_MAP.put('-', 1);
-        PRECEDENCE_MAP.put('*', 2);
-        PRECEDENCE_MAP.put('/', 2);
-
-
-        VALID_OPERATORS = new HashSet<>(Arrays.asList('+', '-', '*', '/'));
+        }, 2));
     }
 
-    public BinaryOperator<Double> getBinaryOperator(String operator) {
-        return OPERATORS.getOrDefault(operator, (a, b) -> {
+    public BinaryOperator<Double> getBinaryOperator(char operator) {
+        OperatorInfo operatorInfo = OPERATORS.get(operator);
+        if (operatorInfo == null) {
             throw new IllegalArgumentException("Invalid operator: " + operator);
-        });
+        }
+        return operatorInfo.getOperator();
     }
 
     public int getPrecedence(char operator) {
-        return PRECEDENCE_MAP.getOrDefault(operator, 0);
+        OperatorInfo operatorInfo = OPERATORS.get(operator);
+        if (operatorInfo == null) {
+            return 0; // Default precedence for unknown operators
+        }
+        return operatorInfo.getPrecedence();    }
+
+    public boolean isValidOperator(char operator) {
+        return OPERATORS.containsKey(operator);
     }
 
-    public boolean getValidOperatorsContains(char operator){return VALID_OPERATORS.contains(operator);}
-}
+    // Helper class to store both BinaryOperator and precedence for an operator
+    private class OperatorInfo {
+        private final BinaryOperator<Double> operator;
+        private final int precedence;
 
+        public OperatorInfo(BinaryOperator<Double> operator, int precedence) {
+            this.operator = operator;
+            this.precedence = precedence;
+        }
+
+        public BinaryOperator<Double> getOperator() {
+            return operator;
+        }
+
+        public int getPrecedence() {
+            return precedence;
+        }
+    }
+}
 

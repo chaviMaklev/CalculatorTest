@@ -46,20 +46,35 @@ public class ExpressionValidatorUtilsTests {
 //
     @Test
     public void testValidMathExpression() {
+
         // Valid expressions
         assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("3 + 2"));
         assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("(x + y)*8"));
         assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("x + 2 * y"));
         assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("-x + 2 * y"));
         assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("x + (-2 * y)"));
+        assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("-6+(5-3+10)+-2"));
+        assertDoesNotThrow(() -> expressionValidatorUtils.isValidMathExpression("-6+(5-3+10)--2"));
 
+
+    }
+
+    @Test
+    public void testInvalidExpressions() {
         // Invalid expressions
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("x&2"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("x#$2"));
         assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("x+/2"));
         assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("(x +"));
         assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("x + * y"));
         assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("x + y)"));
-        //assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("34/a2(b)"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("(x + y"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("34/a2(b)"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("(x +) * y"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("(2++ --3)"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("x++ ++3"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("-6+(5-3+10+-2"));
+        assertThrows(IllegalArgumentException.class, () -> expressionValidatorUtils.isValidMathExpression("-6+(5-3+(10+-2"));
     }
-
 }
 

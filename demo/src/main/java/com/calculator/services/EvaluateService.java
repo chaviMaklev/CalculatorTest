@@ -53,7 +53,7 @@ public class EvaluateService implements IEvaluateService{
             expressionValidatorUtils.validateExpression(variableName,operator,valueExpression);
 
             String updateExpression = handleIncrementsDecrementsAndPrepareExpression(valueExpression, variableMap);
-            double value = calculatorService.calculate(updateExpression, variableMap);
+            double value = calculatorService.calculate(updateExpression);
             handleMapUpdate(variableName, operator, value);        }
     }
 
@@ -69,8 +69,9 @@ public class EvaluateService implements IEvaluateService{
             }
         }
         double currentValue = variableMap.getOrDefault(variableName, 0.0);
-        BinaryOperator<Double> binaryOperator = operatorUtils.getBinaryOperator(operator);
-        double newValue = binaryOperator.apply(currentValue, value);
+        double newValue = operator.equals("=")? value
+                : operatorUtils.getBinaryOperator(operator.charAt(0)).apply(currentValue, value);
+
         variableMap.put(variableName, newValue);
     }
 
@@ -98,9 +99,7 @@ public class EvaluateService implements IEvaluateService{
 
             value = applyIncrementDecrement(value,preIncrementDecrementOperator);
 
-            String valueStr = String.valueOf(value);
-            // in case of minus value he put ()
-            matcher.appendReplacement(result, value < 0  ?String.format("(%s)",valueStr) : valueStr );
+            matcher.appendReplacement(result, String.valueOf(value));
 
             value = applyIncrementDecrement(value,postIncrementDecrementOperator);
 

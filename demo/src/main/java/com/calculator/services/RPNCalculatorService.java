@@ -3,9 +3,7 @@ package com.calculator.services;
 import com.calculator.services.utils.OperatorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Stack;
 
 @Service
@@ -14,10 +12,10 @@ public class RPNCalculatorService implements ICalculatorService {
     @Autowired
     protected OperatorUtils operatorUtils;
 
-    public double calculate(String expression, Map<String, Double> variableMap) {
+    public double calculate(String expression) {
         expression = prepareExpression(expression);
 
-        //Implementation of the cloth yard method, the phrase "calculated according to RPN"
+        //Implementation of the shunting yard method, the phrase "calculated according to RPN"
         String postfix = infixToPostfix(expression);//, variableMap);
         return evaluatePostfix(postfix);
     }
@@ -25,14 +23,14 @@ public class RPNCalculatorService implements ICalculatorService {
     private String prepareExpression(String expression) {
         expression = expression.replaceAll("\\s+",""); //remove spaces
         //add a 0 before the "-" in order to consider the "-" as a standalone operator
-        expression = expression.replace("(-", "(0-");
-        if (expression.startsWith("-")){
-            expression = "0" + expression;
-        }
-        return expression;
+//        expression = expression.replace("(-", "(0-");
+//        if (expression.startsWith("-")){
+//            expression = "0" + expression;
+//        }
+          return expression;
     }
 
-    private String infixToPostfix(String infix){//, Map<String, Double> variableMap) {
+    private String infixToPostfix(String infix) {
         StringBuilder postfix = new StringBuilder();
         Stack<Character> operatorStack = new Stack<>();
 
@@ -40,18 +38,19 @@ public class RPNCalculatorService implements ICalculatorService {
             char currentChar = infix.charAt(i);
 
             if (Character.isDigit(currentChar) || currentChar == '.') {
-                postfix.append(currentChar);
-                while (i + 1 < infix.length() && (Character.isDigit(infix.charAt(i + 1)) || infix.charAt(i + 1) == '.')) {
-                    postfix.append(infix.charAt(++i));
-                }
-                postfix.append(' ');
-            //} else if (Character.isLetter(currentChar)) {
-//                i = processVariable(infix, postfix, i, variableMap);
+                // Process operands (numbers)
+                i = processOperand(postfix,infix,i);
             } else if (currentChar == '(') {
+                // Process left parenthesis
                 operatorStack.push(currentChar);
             } else if (currentChar == ')') {
+                // Process right parenthesis
                 processRightParenthesis(postfix, operatorStack);
+            } else if (isNegativeNumber(infix, i)) {
+                // Process negative number
+                i = processNegativeNumber(postfix, infix, i);
             } else {
+                // Process operators
                 processOperator(postfix, operatorStack, currentChar);
             }
         }
@@ -65,28 +64,38 @@ public class RPNCalculatorService implements ICalculatorService {
         return postfix.toString();
     }
 
+    private int processOperand(StringBuilder postfix, String infix, int startIndex) {
+        postfix.append(infix.charAt(startIndex));
+        int i = startIndex;
+        while (i+1 < infix.length() && (Character.isDigit(infix.charAt(i+1)) || infix.charAt(i+1) == '.')) {
+            postfix.append(infix.charAt(++i));
+        }
+        postfix.append(' ');
+        return i;
 
-//    private int processVariable(String infix, StringBuilder postfix, int index, Map<String, Double> variableMap) {
-//        int j = index;
-//        while (j < infix.length() && (Character.isLetter(infix.charAt(j)))) {
-//            j++;
+    }
+    private boolean isNegativeNumber(String infix, int index) {
+        return (infix.charAt(index) == '-') && (index == 0 || operatorUtils.isValidOperator(infix.charAt(index - 1)) || infix.charAt(index - 1) == '(');
+    }
+
+    private int processNegativeNumber(StringBuilder postfix, String infix, int startIndex) {
+        postfix.append("-");
+//        int i = startIndex + 1;
+//        while (i < infix.length() && (Character.isDigit(infix.charAt(i)) || infix.charAt(i) == '.')) {
+//            postfix.append(infix.charAt(i));
+//            i++;
 //        }
-//        String variableName = infix.substring(index, j);
-//        Double variableValue = variableMap.get(variableName);
-//        if (variableValue == null) {
-//            throw new IllegalArgumentException("Undefined variable: " + variableName);
-//        }
-//        postfix.append(variableValue);
 //        postfix.append(" ");
-//        return j - 1;
-//    }
+//        return i ;
+        return processOperand(postfix,infix,startIndex+1);
+    }
 
     private void processRightParenthesis(StringBuilder postfix, Stack<Character> operatorStack) {
         while (!operatorStack.isEmpty() && operatorStack.peek() != '(') {
             postfix.append(operatorStack.pop());
             postfix.append(" ");
         }
-        operatorStack.pop();
+        operatorStack.pop();// Pop the left parenthesis
     }
 
     private void processOperator(StringBuilder postfix, Stack<Character> operatorStack, char currentChar) {
@@ -104,19 +113,26 @@ public class RPNCalculatorService implements ICalculatorService {
         Arrays.stream(tokens)
                 .filter(token -> !token.isEmpty())
                 .forEach(token -> {
-                    char firstChar = token.charAt(0);
-                    if (Character.isDigit(firstChar)) {
+                    //char firstChar = token.charAt(0);
+                    boolean isDigit = Character.isDigit(token.charAt(0));
+                    boolean isMinusDigit = token.length()>1 && token.charAt(0) == '-' && Character.isDigit(token.charAt(1));
+                    if (isDigit || isMinusDigit) {
                         operandStack.push(Double.parseDouble(token));
                     } else {
-                        double operand2 = operandStack.pop();
-                        double operand1 = operandStack.pop();
-                        double result = performOperation(firstChar, operand1, operand2);
-                        operandStack.push(result);
+                        try {
+                            double operand2 = operandStack.pop();
+                            double operand1 = operandStack.pop();
+                            double result = performOperation(token.charAt(0), operand1, operand2);
+                            operandStack.push(result);
+
+                        }catch (Exception exception){
+                            throw new IllegalArgumentException("Invalid postfix expression: "+ postfix);
+                        }
                     }
                 });
 
         if (operandStack.size() != 1) {
-            throw new IllegalArgumentException("Invalid postfix expression");
+            throw new IllegalArgumentException("Invalid postfix expression: "+ postfix);
         }
 
         return operandStack.pop();
@@ -127,7 +143,7 @@ public class RPNCalculatorService implements ICalculatorService {
     }
 
     private double performOperation(char operator, double operand1, double operand2) {
-        return operatorUtils.getBinaryOperator(String.valueOf(operator)).apply(operand1,operand2);
+        return operatorUtils.getBinaryOperator(operator).apply(operand1,operand2);
     }
 
 }
