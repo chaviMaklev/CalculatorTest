@@ -11,9 +11,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RPNCalculatorServiceTest {
@@ -68,16 +65,17 @@ public class RPNCalculatorServiceTest {
 
     @Test
     public void test_include_minus_val(){
-        String expression ="-6+(5-3+10)+-2";
+        String expression ="-6+(5-3+10)-(-2)";
+        int res = -6+5-3+10-(-2);
         double result = RPNCalculatorService.calculate(expression);
-        Assertions.assertEquals(4,result);
+        Assertions.assertEquals(res,result);
     }
 
     @Test
     public void test_invalid_operator(){
-        assertThrows(IllegalArgumentException.class,() ->RPNCalculatorService.calculate("3 & 2"));
-        assertThrows(IllegalArgumentException.class, () -> RPNCalculatorService.calculate("-6+(5-3+10+-2"));
-        assertThrows(IllegalArgumentException.class, () -> RPNCalculatorService.calculate("-6+(5-3+(10+-2"));
+        Assertions.assertThrows(IllegalArgumentException.class,() ->RPNCalculatorService.calculate("3 & 2"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> RPNCalculatorService.calculate("-6+(5-3+10+-2"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> RPNCalculatorService.calculate("-6+(5-3+(10+-2"));
     }
 
 

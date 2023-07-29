@@ -57,7 +57,7 @@ public class ExpressionValidatorUtils {
                 parenthesesStack.push(ch);
             } else if (ch == ')') {
                 if (parenthesesStack.isEmpty() || parenthesesStack.pop() != '(') {
-                    throw new IllegalArgumentException("Unbalanced closing parenthesis");
+                    throw new IllegalArgumentException("Unbalanced parenthesis");
                 }
             } else if (Character.isDigit(ch) || ch == '.') {
                 while (i + 1 < expression.length() && (Character.isDigit(expression.charAt(i + 1)) || expression.charAt(i + 1) == '.')) {
@@ -93,7 +93,7 @@ public class ExpressionValidatorUtils {
         }
 
         if(!parenthesesStack.isEmpty()){
-            throw new IllegalArgumentException("Unbalanced open parenthesis");
+            throw new IllegalArgumentException("Unbalanced parenthesis");
         }
     }
 

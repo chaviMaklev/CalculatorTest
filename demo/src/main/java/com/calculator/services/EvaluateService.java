@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -54,7 +53,8 @@ public class EvaluateService implements IEvaluateService{
 
             String updateExpression = handleIncrementsDecrementsAndPrepareExpression(valueExpression, variableMap);
             double value = calculatorService.calculate(updateExpression);
-            handleMapUpdate(variableName, operator, value);        }
+            handleMapUpdate(variableName, operator, value);
+        }
     }
 
 

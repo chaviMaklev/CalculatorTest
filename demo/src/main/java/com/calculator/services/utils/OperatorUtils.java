@@ -43,7 +43,7 @@ public class OperatorUtils {
     }
 
     // Helper class to store both BinaryOperator and precedence for an operator
-    private class OperatorInfo {
+    private static class OperatorInfo {
         private final BinaryOperator<Double> operator;
         private final int precedence;
 

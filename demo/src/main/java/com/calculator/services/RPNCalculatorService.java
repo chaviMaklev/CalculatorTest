@@ -22,12 +22,7 @@ public class RPNCalculatorService implements ICalculatorService {
 
     private String prepareExpression(String expression) {
         expression = expression.replaceAll("\\s+",""); //remove spaces
-        //add a 0 before the "-" in order to consider the "-" as a standalone operator
-//        expression = expression.replace("(-", "(0-");
-//        if (expression.startsWith("-")){
-//            expression = "0" + expression;
-//        }
-          return expression;
+        return expression;
     }
 
     private String infixToPostfix(String infix) {
@@ -72,7 +67,6 @@ public class RPNCalculatorService implements ICalculatorService {
         }
         postfix.append(' ');
         return i;
-
     }
     private boolean isNegativeNumber(String infix, int index) {
         return (infix.charAt(index) == '-') && (index == 0 || operatorUtils.isValidOperator(infix.charAt(index - 1)) || infix.charAt(index - 1) == '(');
@@ -80,13 +74,6 @@ public class RPNCalculatorService implements ICalculatorService {
 
     private int processNegativeNumber(StringBuilder postfix, String infix, int startIndex) {
         postfix.append("-");
-//        int i = startIndex + 1;
-//        while (i < infix.length() && (Character.isDigit(infix.charAt(i)) || infix.charAt(i) == '.')) {
-//            postfix.append(infix.charAt(i));
-//            i++;
-//        }
-//        postfix.append(" ");
-//        return i ;
         return processOperand(postfix,infix,startIndex+1);
     }
 

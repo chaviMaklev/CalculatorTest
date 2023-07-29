@@ -108,13 +108,21 @@ public class EvaluateServiceTest {
                 "i = 0\n" +
                         "j = --i\n" +
                         "x = --i + 5 * --i\n" +
-                        "y = 5 + 3 * 10\n" +
+                        "y = 5 + -3 * 10\n" +
                         "i += y");
         Assertions.assertEquals(results.get("x"), -17.0);
-        Assertions.assertEquals(results.get("i"),32.0);
-        Assertions.assertEquals(results.get("y"),35.0);
+        Assertions.assertEquals(results.get("i"),-28.0);
+        Assertions.assertEquals(results.get("y"),-25.0);
         Assertions.assertEquals(results.get("j"), -1.0);
 
+    }
+
+    @Test
+    public void test_end_to_end_with_irrational_number() {
+        Map<String,Double> results = evaluateService.evaluateAndCalculateExpression(
+                "PI = 3.14159\n x = 2 * PI");
+        Assertions.assertEquals(results.get("x"), 6.28318);
+        Assertions.assertEquals(results.get("PI"),3.14159);
     }
 
 
